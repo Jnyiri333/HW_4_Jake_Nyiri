@@ -16,17 +16,22 @@ library(broom)
 library(here)
 library(effsize)
 
-raw_hare_data <- read.csv(here("Data", "bonanza_hares.csv"))
+raw_hare_data <- read.csv(here("Data","bonanza_hares.csv"))
 
 ```
 
 ```{r}
-#Create a base dataframe of just the juvenile rabbits with year info pulled out
+#Create a base dataframe of just the juvenile rabbits with year info pulled out 
 juvenile_hare_data <- raw_hare_data %>% 
   mutate(date = mdy(date)) %>% 
-  mutate(year = year(date)) %>%  
+  mutate(year = year(date)) %>% 
   
   filter(age == "j")
+
+levels(juvenile_hare_data$sex)[levels(juvenile_hare_data$sex)=="f"] <- "Female"
+levels(juvenile_hare_data$sex)[levels(juvenile_hare_data$sex)=="m"] <- "Male"
+
+#revalue(juvenile_hare_data, c("f" = "female", "m"="male"))
 
 #Create second base dataframe with NA values removed from female and male rabbits weight
 juvenile_hare_data_no_NA <- juvenile_hare_data %>% 
@@ -38,11 +43,11 @@ juvenile_hare_data_no_NA <- juvenile_hare_data %>%
 #Count juvenile hares only trapped for each year
 juvenile_trap_data <- juvenile_hare_data %>% 
   
-
   group_by(year) %>% 
   summarize(
     number_trapped = n(),
     )
+juvenile_trap_data
 
 trapped_mean <- mean(juvenile_trap_data$number_trapped)
 trapped_median <- median(juvenile_trap_data$number_trapped)
@@ -50,8 +55,8 @@ trapped_median <- median(juvenile_trap_data$number_trapped)
 ```
 ```{r}
 first_juvenile_plot <- juvenile_trap_data %>% 
-  ggplot(aes(x=year,, y=number_trapped))+
-  geom_point()
+  ggplot(aes(x=year, y=number_trapped))+
+  geom_col()
 
 first_juvenile_plot
 ```
@@ -101,11 +106,11 @@ bunny_normal_test
 #First need to pull out weights by sex
 
 female_weights <- juvenile_hare_data_no_NA %>% 
-  filter(sex=="f") %>% 
+  filter(sex=="Female") %>% 
   pull(weight)
 
 male_weights <- juvenile_hare_data_no_NA %>% 
-  filter(sex=="m") %>% 
+  filter(sex=="Male") %>% 
   pull(weight)
 
 bunny_t_test <- t.test(female_weights,male_weights)
@@ -113,6 +118,18 @@ bunny_t_test
 
 bunny_cohen <- cohen.d(female_weights, male_weights)
 bunny_cohen
+
+```
+
+```{r}
+juvenile_hare_ft_and_weight <- juvenile_hare_data_no_NA %>% 
+  filter(hindft != "NA")
+
+foot_weight_plot<- juvenile_hare_ft_and_weight %>% 
+  ggplot(aes(x=weight, y=hindft))+
+  geom_point()
+
+foot_weight_plot
 
 ```
 
