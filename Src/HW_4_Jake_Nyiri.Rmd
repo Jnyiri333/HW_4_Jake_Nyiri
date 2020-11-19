@@ -14,6 +14,7 @@ library(tidyverse)
 library(lubridate)
 library(broom)
 library(here)
+library(effsize)
 
 raw_hare_data <- read.csv(here("Data", "bonanza_hares.csv"))
 
@@ -26,6 +27,10 @@ juvenile_hare_data <- raw_hare_data %>%
   mutate(year = year(date)) %>%  
   
   filter(age == "j")
+
+#Create second base dataframe with NA values removed from female and male rabbits weight
+juvenile_hare_data_no_NA <- juvenile_hare_data %>% 
+  filter(weight != "NA")
 ```
 
 ```{r}
@@ -70,14 +75,36 @@ juv_weights_plot
 #compare stats for male and female juvenile snowshoe hares
 #Then run t-test and Cohen's
 
-bunny_sex_compare <- juvenile_hare_data %>% 
+bunny_sex_compare <- juvenile_hare_data_no_NA %>% 
   group_by(sex) %>% 
   summarize(
-    mean_weight = mean(weight, na.rm=TRUE),
-    sd_weight = sd(weight, na.rm = TRUE),
+    mean_weight = mean(weight),
+    sd_weight = sd(weight),
     number_trapped = n())
 
 bunny_sex_compare
 ```
+```{r}
+#Here I will include plot() to check assumptions for data
+```
 
+```{r}
+#Run tests (t-test and cohens d)
+#First need to pull out weights by sex
+
+female_weights <- juvenile_hare_data_no_NA %>% 
+  filter(sex=="f") %>% 
+  pull(weight)
+
+male_weights <- juvenile_hare_data_no_NA %>% 
+  filter(sex=="m") %>% 
+  pull(weight)
+
+bunny_t_test <- t.test(female_weights,male_weights)
+bunny_t_test
+
+bunny_cohen <- cohen.d(female_weights, male_weights)
+bunny_cohen
+
+```
 

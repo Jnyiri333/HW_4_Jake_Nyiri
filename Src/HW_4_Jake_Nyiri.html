@@ -383,6 +383,7 @@ summary {
 library(lubridate)
 library(broom)
 library(here)
+library(effsize)
 
 raw_hare_data &lt;- read.csv(here(&quot;Data&quot;, &quot;bonanza_hares.csv&quot;))</code></pre>
 <pre class="r"><code>#Create a base dataframe of just the juvenile rabbits with year info pulled out
@@ -390,7 +391,11 @@ juvenile_hare_data &lt;- raw_hare_data %&gt;%
   mutate(date = mdy(date)) %&gt;% 
   mutate(year = year(date)) %&gt;%  
   
-  filter(age == &quot;j&quot;)</code></pre>
+  filter(age == &quot;j&quot;)
+
+#Create second base dataframe with NA values removed from female and male rabbits weight
+juvenile_hare_data_no_NA &lt;- juvenile_hare_data %&gt;% 
+  filter(weight != &quot;NA&quot;)</code></pre>
 <pre class="r"><code>#Part 1 of assignment-
 #Count juvenile hares only trapped for each year
 juvenile_trap_data &lt;- juvenile_hare_data %&gt;% 
@@ -425,20 +430,54 @@ juv_weights_plot</code></pre>
 #compare stats for male and female juvenile snowshoe hares
 #Then run t-test and Cohen&#39;s
 
-bunny_sex_compare &lt;- juvenile_hare_data %&gt;% 
+bunny_sex_compare &lt;- juvenile_hare_data_no_NA %&gt;% 
   group_by(sex) %&gt;% 
   summarize(
-    mean_weight = mean(weight, na.rm=TRUE),
-    sd_weight = sd(weight, na.rm = TRUE),
+    mean_weight = mean(weight),
+    sd_weight = sd(weight),
     number_trapped = n())
 
 bunny_sex_compare</code></pre>
 <pre><code>## # A tibble: 3 x 4
 ##   sex   mean_weight sd_weight number_trapped
 ##   &lt;fct&gt;       &lt;dbl&gt;     &lt;dbl&gt;          &lt;int&gt;
-## 1 f            855.      292.            200
+## 1 f            855.      292.            197
 ## 2 m            946.      333.            163
-## 3 &lt;NA&gt;         615.      358.             15</code></pre>
+## 3 &lt;NA&gt;         615.      358.             11</code></pre>
+<pre class="r"><code>#Here I will include plot() to check assumptions for data</code></pre>
+<pre class="r"><code>#Run tests (t-test and cohens d)
+#First need to pull out weights by sex
+
+female_weights &lt;- juvenile_hare_data_no_NA %&gt;% 
+  filter(sex==&quot;f&quot;) %&gt;% 
+  pull(weight)
+
+male_weights &lt;- juvenile_hare_data_no_NA %&gt;% 
+  filter(sex==&quot;m&quot;) %&gt;% 
+  pull(weight)
+
+bunny_t_test &lt;- t.test(female_weights,male_weights)
+bunny_t_test</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  female_weights and male_weights
+## t = -2.7096, df = 325.02, p-value = 0.007093
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -156.15138  -24.78469
+## sample estimates:
+## mean of x mean of y 
+##  855.3909  945.8589</code></pre>
+<pre class="r"><code>bunny_cohen &lt;- cohen.d(female_weights, male_weights)
+bunny_cohen</code></pre>
+<pre><code>## 
+## Cohen&#39;s d
+## 
+## d estimate: -0.2904674 (small)
+## 95 percent confidence interval:
+##       lower       upper 
+## -0.49978274 -0.08115207</code></pre>
 
 
 
