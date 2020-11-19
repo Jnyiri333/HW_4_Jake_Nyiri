@@ -133,3 +133,15 @@ foot_weight_plot
 
 ```
 
+```{r}
+bunny_lm <- lm(hindft ~ weight, data = juvenile_hare_ft_and_weight)
+
+bunny_lm_plot <- juvenile_hare_ft_and_weight %>% 
+  ggplot(aes(x=weight, y=hindft))+
+  geom_point()+
+  geom_smooth(method = "lm")
+
+bunny_lm_plot
+```
+
+
