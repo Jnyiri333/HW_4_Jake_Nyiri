@@ -39,10 +39,24 @@ trapped_median <- median(juvenile_trap_data$number_trapped)
 ```
 ```{r}
 first_juvenile_plot <- juvenile_trap_data %>% 
-  ggplot(aes(x=year, y=number_trapped))+
+  ggplot(aes(x=year,, y=number_trapped))+
   geom_point()
 
 first_juvenile_plot
+```
+
+```{r}
+#Second part of assignment
+#Compare juv hare weights by sex for each site
+
+juv_weights_plot <- raw_hare_data %>% 
+  filter(age == "j") %>% 
+  group_by(grid) %>% 
+  ggplot(aes(x=grid, y=weight))+
+  geom_point()+
+  facet_wrap(~sex)
+
+juv_weights_plot
 ```
 
 
