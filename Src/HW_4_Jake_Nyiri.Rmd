@@ -20,14 +20,20 @@ raw_hare_data <- read.csv(here("Data", "bonanza_hares.csv"))
 ```
 
 ```{r}
-#Part 1 of assignment-
-#Count juvenile hares only trapped for each year
-juvenile_trap_data <- raw_hare_data %>% 
-  
+#Create a base dataframe of just the juvenile rabbits with year info pulled out
+juvenile_hare_data <- raw_hare_data %>% 
   mutate(date = mdy(date)) %>% 
   mutate(year = year(date)) %>%  
   
-  filter(age == "j") %>% 
+  filter(age == "j")
+```
+
+```{r}
+#Part 1 of assignment-
+#Count juvenile hares only trapped for each year
+juvenile_trap_data <- juvenile_hare_data %>% 
+  
+
   group_by(year) %>% 
   summarize(
     number_trapped = n(),
@@ -49,14 +55,29 @@ first_juvenile_plot
 #Second part of assignment
 #Compare juv hare weights by sex for each site
 
-juv_weights_plot <- raw_hare_data %>% 
-  filter(age == "j") %>% 
+juv_weights_plot <- juvenile_hare_data %>% 
+  
   group_by(grid) %>% 
   ggplot(aes(x=grid, y=weight))+
   geom_point()+
   facet_wrap(~sex)
 
 juv_weights_plot
+```
+
+```{r}
+#Third part of assignment
+#compare stats for male and female juvenile snowshoe hares
+#Then run t-test and Cohen's
+
+bunny_sex_compare <- juvenile_hare_data %>% 
+  group_by(sex) %>% 
+  summarize(
+    mean_weight = mean(weight, na.rm=TRUE),
+    sd_weight = sd(weight, na.rm = TRUE),
+    number_trapped = n())
+
+bunny_sex_compare
 ```
 
 
