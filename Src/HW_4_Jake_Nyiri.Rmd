@@ -6,6 +6,43 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(broom)
+library(here)
+
+raw_hare_data <- read.csv(here("Data", "bonanza_hares.csv"))
+
+```
+
+```{r}
+#Part 1 of assignment-
+#Count juvenile hares only trapped for each year
+juvenile_trap_data <- raw_hare_data %>% 
+  
+  mutate(date = mdy(date)) %>% 
+  mutate(year = year(date)) %>%  
+  
+  filter(age == "j") %>% 
+  group_by(year) %>% 
+  summarize(
+    number_trapped = n(),
+    )
+
+trapped_mean <- mean(juvenile_trap_data$number_trapped)
+trapped_median <- median(juvenile_trap_data$number_trapped)
+
+```
+```{r}
+first_juvenile_plot <- juvenile_trap_data %>% 
+  ggplot(aes(x=year, y=number_trapped))+
+  geom_point()
+
+first_juvenile_plot
+```
+
 
