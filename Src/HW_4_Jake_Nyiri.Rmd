@@ -30,7 +30,7 @@ juvenile_hare_data <- raw_hare_data %>%
 
 #Create second base dataframe with NA values removed from female and male rabbits weight
 juvenile_hare_data_no_NA <- juvenile_hare_data %>% 
-  filter(weight != "NA")
+  filter(weight != "NA" & sex != "NA")
 ```
 
 ```{r}
@@ -84,8 +84,16 @@ bunny_sex_compare <- juvenile_hare_data_no_NA %>%
 
 bunny_sex_compare
 ```
-```{r}
-#Here I will include plot() to check assumptions for data
+```{r, include = FALSE}
+#Check the assumptions of the rabbit data before trying a t-test
+#Don't include in final markdown document
+bunny_normal_test<-juvenile_hare_data_no_NA %>% 
+  ggplot(aes(sample=weight))+
+  geom_qq(aes(color=sex))
+
+bunny_normal_test
+#Not the best but close enough
+
 ```
 
 ```{r}
