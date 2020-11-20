@@ -219,16 +219,16 @@ bunny_t_test <- t.test(female_weights,male_weights)
 bunny_cohen <- cohen.d(female_weights, male_weights)
 
 
-bunny_test_swept <- broom::tidy(bunny_t_test)
+bunny_test_swept <- tidy(bunny_t_test)
 
 bunny_pee <- bunny_test_swept$p.value
 bunny_mean_diff <- abs(bunny_test_swept$estimate1 - bunny_test_swept$estimate2)
 ```
-After checking for normality of the data using a QQ plot, we do not see a result for either sex which is as normalized as we would prefer, especially at the low end of the weights, but we still consider the data sample sufficiently normal to apply a two-sample t-test. Male hares had a mean weight of `r round(bunny_male_mean,1)`g $\pm$ `r round(bunny_male_sd,1)`g and females had a mean weight of `r round(bunny_female_mean,1)`g $\pm$ `r round(bunny_female_sd,1)`g. The difference in the means of the two samples was `r round(bunny_mean_diff,1)`g, or a `r round((bunny_male_mean - bunny_female_mean)/((bunny_male_mean + bunny_female_mean)/2) * 100, 2)`% difference, and although this was found to be significant (Welch's t-test, t(`r round(bunny_test_swept$parameter,2)`) = `r round(bunny_test_swept$statistic,2)`, p = `r round(bunny_test_swept$p.value,3)`, the effect size was not very large (Cohen's *d* = `r round(bunny_cohen$estimate,2)`). <br>
+After checking for normality of the data using a QQ plot, we do not see a result for either sex which is as normalized as we would prefer, especially at the low end of the weights, but we still consider the data sample sufficiently normal to apply a two-sample t-test. Male hares had a mean weight of `r round(bunny_male_mean,1)`g $\pm$ `r round(bunny_male_sd,1)`g and females had a mean weight of `r round(bunny_female_mean,1)`g $\pm$ `r round(bunny_female_sd,1)`g. The difference in the means of the two samples was `r round(bunny_mean_diff,1)`g, or a `r round((bunny_male_mean - bunny_female_mean)/((bunny_male_mean + bunny_female_mean)/2) * 100, 2)`% difference, and although this was found to be significant (Welch's t-test, t(`r round(bunny_test_swept$parameter,2)`) = `r round(bunny_test_swept$statistic,2)`, p = `r round(bunny_test_swept$p.value,3)`, the effect size was not very large (Cohen's *d* = `r round(bunny_cohen$estimate,2)`). <br><br><br>
 
 **Juvenile Hare Foot Length and Weight Modeling**<br>
-Finally we created a simple linear model to try to explore any potential relationship between hare weight and length of their rear feet.
-```{r}
+Finally we created a simple linear model to try to explore any potential relationship between hare weight and length of their rear feet. <br>
+```{r, include = F}
 juvenile_hare_ft_and_weight <- juvenile_hare_data_no_NA %>% 
   filter(hindft != "NA")
 
@@ -237,21 +237,39 @@ foot_weight_plot<- juvenile_hare_ft_and_weight %>%
   geom_point()
 
 foot_weight_plot
-
 ```
 
-```{r}
+```{r, include=F}
 bunny_lm <- lm(hindft ~ weight, data = juvenile_hare_ft_and_weight)
+bunny_lm_table <-tidy(bunny_lm)
+bunny_lm_glance <-glance(bunny_lm)
 
 bunny_correlation <- cor.test(juvenile_hare_ft_and_weight$hindft, juvenile_hare_ft_and_weight$weight)
+bunny_cor <- tidy(bunny_correlation)
 
+#check residuals for assumptions
+plot(bunny_lm)
+```
+
+
+
+```{r}
 bunny_lm_plot <- juvenile_hare_ft_and_weight %>% 
   ggplot(aes(x=weight, y=hindft))+
-  geom_point()+
-  geom_smooth(method = "lm")
+  geom_point(color="cyan4")+
+  geom_smooth(method = "lm",
+              color="red",
+              size = 0.5)+
+  labs(
+    x="Hare Weight(g)",
+    y="Hind Foot Length(mm)"
+  )+
+  ggpubr::stat_regline_equation(label.x = 1200, label.y = 80)
 
 bunny_lm_plot
-bunny_correlation
 ```
+<br><font size = "1"> **Figure 3**</font><br>
+<font size ="2">Juvenile hare hind foot length as a function of weight. Each dot represents an individual hare, with males and females grouped together. The red line represents the regression line, with the regression equation displayed in the lower right. </font><br><br>
+
 
 
