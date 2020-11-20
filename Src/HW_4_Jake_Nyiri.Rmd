@@ -16,6 +16,8 @@ library(lubridate)
 library(broom)
 library(here)
 library(effsize)
+library(ggbeeswarm)
+
 
 raw_hare_data <- read.csv(here("Data","bonanza_hares.csv"))
 
@@ -45,21 +47,20 @@ juvenile_hare_data_no_NA <- juvenile_hare_data %>%
 
 
 # BONANZA CREEK LTER
-## Juvenile Snowshoe Hares
-## Jake Nyiri
+### Juvenile Snowshoe Hares
+#### Jake Nyiri
 
 
 **Introduction**
 
-This exploratory analysis examines some of the data collected at multiple Bonanza Creek Experimental Forest Long-Term Ecological Research sites in Alaska from 1999-2010. This is a large-scale ecological and climate research center located in boreal forest and tundra around the city of Fairbanks. Relationships between sex and weight of juvenile snowshoe hares in the area are examined, as well as any potential relationship between weight and limb length.
+This exploratory analysis examines some of the data collected at multiple Bonanza Creek Experimental Forest Long-Term Ecological Research sites in Alaska from 1998-2010. This is a large-scale ecological and climate research center located in boreal forest and tundra around the city of Fairbanks. Relationships between sex and weight of juvenile snowshoe hares in the area are examined, as well as any potential relationship between weight and limb length.
 
 
 **Data and Methods**
-Counts and measurements of snowshoes hares were collected from trapping regimes at three sites in the LTER over 12 years ([Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative.](https:\\doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14))
+Counts and measurements of juvenile snowshoes hares were collected from trapping regimes at three sites in the LTER over 12 years ([Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative.](https:\\doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14)). Hare weight, sex, foot length, and ear length were recorded. In this analysis, weights were compared across the three sites and summary statistics prepared for both sexes of hare. A two-sample t-test was used to explore differences between the average weights of male and female hares, with a Cohens' <i>d</i> effect size determined. Relationships between hare weight and hind foot length were examined and a linear model created to try to describe the relationship. All analysis was conducted with R 3.6.2
 
 
-
-```{r}
+```{r, include=FALSE}
 #Part 1 of assignment-
 #Count juvenile hares only trapped for each year
 juvenile_trap_data <- juvenile_hare_data %>% 
@@ -74,13 +75,23 @@ trapped_mean <- mean(juvenile_trap_data$number_trapped)
 trapped_median <- median(juvenile_trap_data$number_trapped)
 
 ```
+\  \  
+#####  
+
 ```{r}
 first_juvenile_plot <- juvenile_trap_data %>% 
   ggplot(aes(x=year, y=number_trapped))+
-  geom_col()
+  geom_col()+
+  labs(
+    title="Juvenile Snowshoe Hare Counts By Year",
+    subtitle = "1998-2010",
+    x="Year",
+    y="Hares Trapped")
 
 first_juvenile_plot
 ```
+The counts appear to decrease over the timespan of the study.
+
 
 ```{r}
 #Second part of assignment
@@ -90,8 +101,17 @@ juv_weights_plot <- juvenile_hare_data %>%
   
   group_by(grid) %>% 
   ggplot(aes(x=grid, y=weight))+
-  geom_point()+
-  facet_wrap(~sex)
+  geom_beeswarm(aes(color=sex))+
+  facet_wrap(~sex)+
+  geom_boxplot(aplha=0.1)+
+  stat_summary(fun=mean,
+               geom="point")
+               # shape=5
+               # size
+               # color
+               # fill
+               
+               
 
 juv_weights_plot
 ```
