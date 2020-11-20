@@ -6,10 +6,11 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```
 
 ```{r}
+#initialize libraries and obtain raw data
 library(tidyverse)
 library(lubridate)
 library(broom)
@@ -19,6 +20,8 @@ library(effsize)
 raw_hare_data <- read.csv(here("Data","bonanza_hares.csv"))
 
 ```
+
+
 
 ```{r}
 #Create a base dataframe of just the juvenile rabbits with year info pulled out 
@@ -31,24 +34,41 @@ juvenile_hare_data <- raw_hare_data %>%
 #rename factor levels for cleaner graph labels and code
 levels(juvenile_hare_data$sex)[levels(juvenile_hare_data$sex)=="f"] <- "Female"
 levels(juvenile_hare_data$sex)[levels(juvenile_hare_data$sex)=="m"] <- "Male"
-
-#revalue(juvenile_hare_data, c("f" = "female", "m"="male"))
+levels(juvenile_hare_data$grid)[levels(juvenile_hare_data$grid)=="bonrip"] <- "Riparian"
+levels(juvenile_hare_data$sex)[levels(juvenile_hare_data$sex)=="bonbs"] <- "Lowland Spruce"
+levels(juvenile_hare_data$sex)[levels(juvenile_hare_data$sex)=="bonmat"] <- "Upland Mature"
 
 #Create second base dataframe with NA values removed from female and male rabbits weight
 juvenile_hare_data_no_NA <- juvenile_hare_data %>% 
   filter(weight != "NA" & sex != "NA")
 ```
 
+
+# BONANZA CREEK LTER
+## Juvenile Snowshoe Hares
+## Jake Nyiri
+
+
+**Introduction**
+
+This exploratory analysis examines some of the data collected at multiple Bonanza Creek Experimental Forest Long-Term Ecological Research sites in Alaska from 1999-2010. This is a large-scale ecological and climate research center located in boreal forest and tundra around the city of Fairbanks. Relationships between sex and weight of juvenile snowshoe hares in the area are examined, as well as any potential relationship between weight and limb length.
+
+
+**Data and Methods**
+Counts and measurements of snowshoes hares were collected from trapping regimes at three sites in the LTER over 12 years ([Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative.](https:\\doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14))
+
+
+
 ```{r}
 #Part 1 of assignment-
 #Count juvenile hares only trapped for each year
 juvenile_trap_data <- juvenile_hare_data %>% 
   
-  group_by(year) %>% 
+  group_by(year) %>%
   summarize(
     number_trapped = n(),
     )
-juvenile_trap_data
+
 
 trapped_mean <- mean(juvenile_trap_data$number_trapped)
 trapped_median <- median(juvenile_trap_data$number_trapped)
