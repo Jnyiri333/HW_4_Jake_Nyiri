@@ -228,7 +228,7 @@ After checking for normality of the data using a QQ plot, we do not see a result
 
 **Juvenile Hare Foot Length and Weight Modeling**<br>
 Finally we created a simple linear model to try to explore any potential relationship between hare weight and length of their rear feet. <br>
-```{r, include = F}
+```{r, include=F}
 juvenile_hare_ft_and_weight <- juvenile_hare_data_no_NA %>% 
   filter(hindft != "NA")
 
@@ -270,6 +270,20 @@ bunny_lm_plot
 ```
 <br><font size = "1"> **Figure 3**</font><br>
 <font size ="2">Juvenile hare hind foot length as a function of weight. Each dot represents an individual hare, with males and females grouped together. The red line represents the regression line, with the regression equation displayed in the lower right. </font><br><br>
+
+After regression, the use of a linear model appears to be questionable. The weight of a hare is not a very good predictor of rear leg length (p < 0.001, R^2^ = `r round(bunny_lm_glance$r.squared,4)`), with a slope of the model of `r round(bunny_lm_table$estimate[2],3)` mm*g^-1^, indicating a slight increase in foot length with each gram of weight increase. The two datasets are not very correlated (Pearson's <i>r</i> of `r round(bunny_cor$estimate,3)`). An examination of graphs of the residuals for the model reveal several potential conflicts with the assumptions of a linear model, including non-normality of the data the further away from the mean of the dataset modeled, and non-equal variance of the residuals around the fitted line. Indeed, a cursory look at the regression line on the graph indicates a linear model does not fit this data well.<br><br>
+<br>
+**CONCLUSION**
+<br>
+1. Sampling method inconsistency may be leading to uncounted juveniles and unidentifiable sex or age of hares.<br>
+2. The number of juveniles being recorded appears to be decreasing sharply over time even when accounting for potential sampling inaccuracies.<br>
+3. While there is a difference in the recorded mean weight of juvenile hares based on sex, the significance may not be high enough to report a trend. Further sampling may help to resolve this.<br>
+4. A direct relationship between weight and foot length with no other influences seems tenuous at best. Accounting for differences in sex and area lived in may further elucidate this relationship.
+
+
+**DATA CITATION**
+([Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative.](https:\\doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14))
+
 
 
 
