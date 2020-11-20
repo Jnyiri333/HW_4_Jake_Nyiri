@@ -65,7 +65,7 @@ Counts and measurements of juvenile snowshoes hares were collected from trapping
 We first explored general trends in the observed population over the temporal range of the data by visualizing the number of hares trapped each year. <br> <br>
 
 
-```{r}
+```{r, include=F}
 #Part 1 of assignment-
 #Count juvenile hares only trapped for each year
 juvenile_trap_data <- juvenile_hare_data %>% 
@@ -103,7 +103,7 @@ first_juvenile_plot <- juvenile_trap_data %>%
 first_juvenile_plot
 ```
 <br><font size = "1"> **Figure 1**</font><br>
-<font size ="2"> Juvenile Snowshoe Hare Counts (1998-2010) </font><br>
+<font size ="2"> Juvenile Snowshoe Hare Counts (1998-2010) The counts are absolute irrespective of sex or trapping location.</font><br>
 <br> The counts appear to decrease over the timespan of the study, from a maximum of `r trapped_max` to a minimum of `r trapped_min`. However, for two years (2002 and 2009) there were no identifiable juveniles counted, and the majority of the ages are listed as 'NA'. If we treat those years as 0 juveniles counted then the average yearly count is `r incl_NA_Trapped_mean` with a median of `r incl_NA_Trapped_median`. If we do not include those years at all, the average count is `r trapped_mean` with a median of `r trapped_median`. The large number of 'NA' ages in these years indicates that a more regimented sampling and identification system amy be in order.
 <br><br><br>
 
@@ -150,7 +150,7 @@ male_by_location<-juvenile_hare_data %>%
 juv_weights_plot
 ```
 <br><font size = "1"> **Figure 2**</font><br>
-<font size ="2"> Juvenile Snowshoe Hare Weights By Sex and Location </font><br>
+<font size ="2"> Juvenile Snowshoe Hare Weights By Sex and Location. The colored dots represent individual hare measurements. The boxes show the limits of the middle 50% of each dataset, and the line and diamond in each box represent the median and mean, respectively. </font><br>
 <br>The data indicates that average female weights are similar in the upland and riparian areas (`r round(female_by_location$mean_weight[2],0)`g and `r round(female_by_location$mean_weight[3],0)`g respectively) and somewhat higher in the lowland (`r round(female_by_location$mean_weight[1],0)`g). The average male weight varied less by location (`r round(male_by_location$mean_weight[1],0)`g for lowland, `r round(male_by_location$mean_weight[2],0)`g for upland and `r round(male_by_location$mean_weight[3],0)`g for riparian), however the range of male weights was much wider in the riparian area than the lowlands. For both sexes the largest number of captures occurred in the riparian area, and the least in the lowlands.
 <br><br><br>
 
@@ -187,7 +187,7 @@ bunny_sex_table <- bunny_sex_compare %>%
 bunny_sex_table
 ```
 
-```{r}
+```{r, include=FALSE}
 #Check the assumptions of the rabbit data before trying a t-test
 bunny_normal_test<-juvenile_hare_data_no_NA %>% 
   ggplot(aes(sample=weight))+
@@ -198,7 +198,7 @@ bunny_normal_test
 
 ```
 
-```{r}
+```{r, include=F}
 #Run tests (t-test and cohens d)
 #First need to pull out weights by sex
 
@@ -210,12 +210,24 @@ male_weights <- juvenile_hare_data_no_NA %>%
   filter(sex=="Male") %>% 
   pull(weight)
 
+bunny_male_mean <- mean(male_weights)
+bunny_male_sd <- sd(male_weights)
+bunny_female_mean <- mean(female_weights)
+bunny_female_sd <- sd(female_weights)
+
 bunny_t_test <- t.test(female_weights,male_weights)
-bunny_t_test
 bunny_cohen <- cohen.d(female_weights, male_weights)
-bunny_cohen
+
+
+bunny_test_swept <- broom::tidy(bunny_t_test)
+
+bunny_pee <- bunny_test_swept$p.value
+bunny_mean_diff <- abs(bunny_test_swept$estimate1 - bunny_test_swept$estimate2)
 ```
-After checking for normality of the data using a QQ plot, we do not see a result for either sex which is as normalized as we would prefer, especially at the low end of the weights, but we still consider the data sample sufficiently normal to apply a two-sample t-test. 
+After checking for normality of the data using a QQ plot, we do not see a result for either sex which is as normalized as we would prefer, especially at the low end of the weights, but we still consider the data sample sufficiently normal to apply a two-sample t-test. Male hares had a mean weight of `r round(bunny_male_mean,1)`g $\pm$ `r round(bunny_male_sd,1)`g and females had a mean weight of `r round(bunny_female_mean,1)`g $\pm$ `r round(bunny_female_sd,1)`g. The difference in the means of the two samples was `r round(bunny_mean_diff,1)`g, or a `r round((bunny_male_mean - bunny_female_mean)/((bunny_male_mean + bunny_female_mean)/2) * 100, 2)`% difference, and although this was found to be significant (Welch's t-test, t(`r round(bunny_test_swept$parameter,2)`) = `r round(bunny_test_swept$statistic,2)`, p = `r round(bunny_test_swept$p.value,3)`, the effect size was not very large (Cohen's *d* = `r round(bunny_cohen$estimate,2)`). <br>
+
+**Juvenile Hare Foot Length and Weight Modeling**<br>
+Finally we created a simple linear model to try to explore any potential relationship between hare weight and length of their rear feet.
 ```{r}
 juvenile_hare_ft_and_weight <- juvenile_hare_data_no_NA %>% 
   filter(hindft != "NA")
