@@ -58,7 +58,11 @@ This exploratory analysis examines some of the data collected at multiple Bonanz
 
 **Data and Methods**
 
-Counts and measurements of juvenile snowshoes hares were collected from trapping regimes at three sites in the LTER over 12 years ([Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative.](https:\\doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14)). Hare weight, sex, foot length, and ear length were recorded. In this analysis, weights were compared across the three sites and summary statistics prepared for both sexes of hare. A two-sample t-test was used to explore differences between the average weights of male and female hares, with a Cohens' <i>d</i> effect size determined. Relationships between hare weight and hind foot length were examined and a linear model created to try to describe the relationship. All analysis was conducted with R 3.6.2
+Counts and measurements of juvenile snowshoes hares were collected from trapping regimes at three sites in the LTER over 12 years ([Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative.](https:\\doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14)). The locations consisted of a riparian near-stream area, lowlands dominated by balck spruce, and mature, upland boreal forest with a mix of alder, birch, and spruce. Hare weight, sex, foot length, and ear length were recorded. In this analysis, weights were compared across the three sites and summary statistics prepared for both sexes of hare. A two-sample t-test was used to explore differences between the average weights of male and female hares, with a Cohens' <i>d</i> effect size determined. Relationships between hare weight and hind foot length were examined and a linear model created to try to describe the relationship. All analysis was conducted with R 3.6.2
+<br><br><br>
+
+**Hare Counts**<br>
+We first explored general trends in the observed population over the temporal range of the data by visualizing the number of hares trapped each year. <br> <br>
 
 
 ```{r}
@@ -70,26 +74,28 @@ juvenile_trap_data <- juvenile_hare_data %>%
   summarize(
     number_trapped = n(),
     )
+
+#Basic count statistics
+trapped_mean <- mean(juvenile_trap_data$number_trapped)
+trapped_median <- median(juvenile_trap_data$number_trapped)
+trapped_max <- max(juvenile_trap_data$number_trapped)
+trapped_min <- min(juvenile_trap_data$number_trapped)
+
 #Accounting for years w/no juveniles
 incl_NA_Trapped_mean<- sum(juvenile_trap_data$number_trapped)/14 #sum 12 counted years and 2 uncounted years
 zero_counts <- c(0,0) #create vector of two zero count years
 
 incl_NA_Trapped_median <- juvenile_trap_data %>% 
-  pull(number_trapped) %>% 
+  pull(number_trapped) %>% #pull the vector of yearly counts to add zero-count years for median
   append(zero_counts) #add the two zeros to the vector of counts
 incl_NA_Trapped_median <- median(incl_NA_Trapped_median) #new median
-
-
-trapped_mean <- mean(juvenile_trap_data$number_trapped)
-trapped_median <- median(juvenile_trap_data$number_trapped)
-trapped_max <- max(juvenile_trap_data$number_trapped)
-trapped_min <- min(juvenile_trap_data$number_trapped)
 ```
 
 ```{r}
+#Visualizing count information
 first_juvenile_plot <- juvenile_trap_data %>% 
   ggplot(aes(x=year, y=number_trapped))+
-  geom_col()+
+  geom_col(fill="cyan4")+
   labs(
     x="Year",
     y="Hares Trapped")
@@ -101,10 +107,15 @@ first_juvenile_plot
 <br> The counts appear to decrease over the timespan of the study, from a maximum of `r trapped_max` to a minimum of `r trapped_min`. However, for two years (2002 and 2009) there were no identifiable juveniles counted, and the majority of the ages are listed as 'NA'. If we treat those years as 0 juveniles counted then the average yearly count is `r incl_NA_Trapped_mean` with a median of `r incl_NA_Trapped_median`. If we do not include those years at all, the average count is `r trapped_mean` with a median of `r trapped_median`. The large number of 'NA' ages in these years indicates that a more regimented sampling and identification system amy be in order.
 <br><br><br>
 
+**Hare Weights Across Sample Locations**<br>
+Next we analyzed the weights of the captured hares across both sex and grid location in the sample area.
+
 ```{r}
+
 #Second part of assignment
 #Compare juv hare weights by sex for each site
 
+#Mae a plot of the weights
 juv_weights_plot <- juvenile_hare_data %>% 
   
   group_by(grid) %>% 
@@ -120,11 +131,12 @@ juv_weights_plot <- juvenile_hare_data %>%
                fill=1)+
   labs(
        x="Trapping Location",
-       y="Weight (kg)",
+       y="Weight (g)",
        legend=FALSE)+
   theme(legend.position = "none",
         axis.text.x=element_text(angle=15))
 
+#summarize weights by location and sex, remove NAs
 female_by_location<-juvenile_hare_data %>%
   filter(sex=="Female" & weight>0) %>%
   group_by(grid) %>%
@@ -139,7 +151,10 @@ juv_weights_plot
 ```
 <br><font size = "1"> **Figure 2**</font><br>
 <font size ="2"> Juvenile Snowshoe Hare Weights By Sex and Location </font><br>
-<br>The data indicates that average female weights are similar in the upland and riparian areas (`r round(female_by_location$mean_weight[2],0)`kg and `r round(female_by_location$mean_weight[3],0)`kg respectively) and somewhat higher in the lowland (`r round(female_by_location$mean_weight[1],0)`kg). The average male weight varied less by location(`r round(male_by_location$mean_weight[1],0)`kg for lowland, `r round(male_by_location$mean_weight[2],0)`kg for upland and `r round(male_by_location$mean_weight[3],0)`kg for riparian). For both sexes the largest number of captures occured in the riparian area.
+<br>The data indicates that average female weights are similar in the upland and riparian areas (`r round(female_by_location$mean_weight[2],0)`kg and `r round(female_by_location$mean_weight[3],0)`kg respectively) and somewhat higher in the lowland (`r round(female_by_location$mean_weight[1],0)`kg). The average male weight varied less by location (`r round(male_by_location$mean_weight[1],0)`kg for lowland, `r round(male_by_location$mean_weight[2],0)`kg for upland and `r round(male_by_location$mean_weight[3],0)`kg for riparian), however the range of male weights was much wider in the riparian area than the lowlands. For both sexes the largest number of captures occurred in the riparian area, and the least in the lowlands.
+<br><br><br>
+
+**Comparison Of Juvenile Hare Weights By Sex**
 
 
 ```{r}
