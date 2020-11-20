@@ -17,7 +17,7 @@ library(broom)
 library(here)
 library(effsize)
 library(ggbeeswarm)
-
+library(kableExtra)
 
 raw_hare_data <- read.csv(here("Data","bonanza_hares.csv"))
 
@@ -151,16 +151,15 @@ juv_weights_plot
 ```
 <br><font size = "1"> **Figure 2**</font><br>
 <font size ="2"> Juvenile Snowshoe Hare Weights By Sex and Location </font><br>
-<br>The data indicates that average female weights are similar in the upland and riparian areas (`r round(female_by_location$mean_weight[2],0)`kg and `r round(female_by_location$mean_weight[3],0)`kg respectively) and somewhat higher in the lowland (`r round(female_by_location$mean_weight[1],0)`kg). The average male weight varied less by location (`r round(male_by_location$mean_weight[1],0)`kg for lowland, `r round(male_by_location$mean_weight[2],0)`kg for upland and `r round(male_by_location$mean_weight[3],0)`kg for riparian), however the range of male weights was much wider in the riparian area than the lowlands. For both sexes the largest number of captures occurred in the riparian area, and the least in the lowlands.
+<br>The data indicates that average female weights are similar in the upland and riparian areas (`r round(female_by_location$mean_weight[2],0)`g and `r round(female_by_location$mean_weight[3],0)`g respectively) and somewhat higher in the lowland (`r round(female_by_location$mean_weight[1],0)`g). The average male weight varied less by location (`r round(male_by_location$mean_weight[1],0)`g for lowland, `r round(male_by_location$mean_weight[2],0)`g for upland and `r round(male_by_location$mean_weight[3],0)`g for riparian), however the range of male weights was much wider in the riparian area than the lowlands. For both sexes the largest number of captures occurred in the riparian area, and the least in the lowlands.
 <br><br><br>
 
-**Comparison Of Juvenile Hare Weights By Sex**
 
-
-```{r}
+**Comparison Of Juvenile Hare Weights By Sex**<br>
+Captured hares were grouped by sex and analyzed for any significant difference in their average weights utilizing a two-sample t-test.<br>
+```{r, include=FALSE}
 #Third part of assignment
-#compare stats for male and female juvenile snowshoe hares
-#Then run t-test and Cohen's
+#Create summary table of hare weight by sex
 
 bunny_sex_compare <- juvenile_hare_data_no_NA %>% 
   group_by(sex) %>% 
@@ -168,12 +167,28 @@ bunny_sex_compare <- juvenile_hare_data_no_NA %>%
     mean_weight = mean(weight),
     sd_weight = sd(weight),
     number_trapped = n())
-
-bunny_sex_compare
 ```
-```{r, include = FALSE}
+
+```{r}
+#Display table of summary stats for hares by sex
+bunny_sex_table <- bunny_sex_compare %>% 
+  kable(
+        col.names = c("Sex",
+                      "Mean Weight(g)",
+                      "Standard Deviation",
+                      "Number Trapped"),
+        caption = "Table 1: Hare Weights By Sex",
+        digits=1
+        ) %>% 
+   kable_styling(bootstrap_options = "striped",
+                full_width = T) 
+  
+
+bunny_sex_table
+```
+
+```{r}
 #Check the assumptions of the rabbit data before trying a t-test
-#Don't include in final markdown document
 bunny_normal_test<-juvenile_hare_data_no_NA %>% 
   ggplot(aes(sample=weight))+
   geom_qq(aes(color=sex))
@@ -197,12 +212,10 @@ male_weights <- juvenile_hare_data_no_NA %>%
 
 bunny_t_test <- t.test(female_weights,male_weights)
 bunny_t_test
-
 bunny_cohen <- cohen.d(female_weights, male_weights)
 bunny_cohen
-
 ```
-
+After checking for normality of the data using a QQ plot, we do not see a result for either sex which is as normalized as we would prefer, especially at the low end of the weights, but we still consider the data sample sufficiently normal to apply a two-sample t-test. 
 ```{r}
 juvenile_hare_ft_and_weight <- juvenile_hare_data_no_NA %>% 
   filter(hindft != "NA")
